@@ -3,6 +3,11 @@ import quopri
 
 class Application:
 
+    def add_route(self, url):
+        def inner(view):
+            self.urls[url] = view
+        return inner
+
     @staticmethod
     def decode_value(val: str) -> str:
         val_bytes = bytes(val.replace('%', '=').replace("+", " "), 'UTF-8')
@@ -33,12 +38,12 @@ class Application:
         data = env['wsgi.input'].read(content_length) if content_length > 0 else b''
         return data
 
-    def __init__(self, urlpatterns: dict, controllers: list):
+    def __init__(self, controllers: list):
         """
         :param urls: словарь url: view
         :param controllers: список front controllers
         """
-        self.urls = urlpatterns
+        self.urls = {}
         self.controllers = controllers
 
     def __call__(self, environ, start_response):
