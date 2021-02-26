@@ -38,12 +38,12 @@ class Application:
         data = env['wsgi.input'].read(content_length) if content_length > 0 else b''
         return data
 
-    def __init__(self, controllers: list):
+    def __init__(self, controllers: list, urls={}):
         """
         :param urls: словарь url: view
         :param controllers: список front controllers
         """
-        self.urls = {}
+        self.urls = urls
         self.controllers = controllers
 
     def __call__(self, environ, start_response):
@@ -74,3 +74,19 @@ class Application:
         else:
             start_response = ('404 NOT FOUND', [('Content-type', 'text/html')])
             return [b'Not found']
+
+
+class LogApplication(Application):
+    def __init__(self, controllers):
+        self.application = Application(controllers)
+        super().__init__(controllers)
+
+    def __call__(self, environ, start_response):
+        print(environ)
+        return self.application(environ, start_response)
+
+
+class FakeApplication(Application):
+    def __call__(self, environ, start_response):
+        start_response = ('200 OK', [('Content-type', 'text/html')])
+        return [b'Hello from Fake']
