@@ -3,13 +3,29 @@ import time
 from .common.singletones import SingletonByName
 
 
+class ConsoleWriter:
+    @staticmethod
+    def write(text):
+        print(text)
+
+
+class FileWriter:
+    def __init__(self, file_name):
+        self.file = file_name
+
+    def write(self, text):
+        with open(self.file, 'a', encoding='utf-8') as file:
+            file.write(f'{text}\n')
+
+
 class Logger(metaclass=SingletonByName):
 
-    def __init__(self, name):
+    def __init__(self, name, writer=ConsoleWriter()):
         self.name = name
+        self.writer = writer
 
     def log(self, text):
-        print('log-->', text)
+        self.writer.write(f'log--> {text}')
 
 
 def debug(func):
@@ -22,3 +38,12 @@ def debug(func):
         return result
 
     return decor
+
+
+if __name__ == '__main__':
+
+    logger = Logger('log')
+    logger.log('test')
+
+    file_log = Logger('file_log', FileWriter('logs'))
+    file_log.log('test')
